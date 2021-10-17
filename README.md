@@ -14,11 +14,9 @@ git clone https://github.com/dariusjonda/fzf-nitro.git
 cd fzf-nitro
 make install
 ```
-`fzf-nitro` should now be installed in `~/.local/bin/gpg-team`
+`fzf-nitro` should now be installed in `~/.local/bin/nitro`
 
 ## Usage
 - `nitro otp` to open fzf with all OTPs.
 - `nitro pws` to open fzf with all PWs.
 - `nitro update` to update cached OTPs / PWs.
-
-
