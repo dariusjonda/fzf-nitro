@@ -45,6 +45,10 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+scdkill() {
+  gpg-connect-agent 'SCD KILLSCD' /bye
+}
+
 
 if [[ "$MODE" == "otp" ]]; then
   otp() {
@@ -64,6 +68,7 @@ if [[ "$MODE" == "otp" ]]; then
     }
 
   eval "otp"
+  eval "scdkill"
 
 elif [[ "$MODE" == "pws" ]]; then
   pws() {
@@ -81,6 +86,7 @@ elif [[ "$MODE" == "pws" ]]; then
     }
 
   eval "pws"
+  eval "scdkill"
 
 elif [[ "$MODE" == "update" ]]; then
   nitrocache() {
@@ -91,7 +97,8 @@ elif [[ "$MODE" == "update" ]]; then
     echo "$1 cache updated."
   }
 
-eval "nitrocache otp"
-eval "nitrocache pws"
+  eval "nitrocache otp"
+  eval "nitrocache pws"
+  eval "scdkill"
 
 fi
