@@ -1,0 +1,97 @@
+#!/bin/bash
+
+helptext() {
+      cat <<EOF
+fzf-nitro
+access OTPs and PWs stored on your nitrokey a little easier using fzf.
+
+Usage:
+  nitro [option]
+
+Options:
+  -o   | otp                  fzf open OTP overview and copy into clipboard.
+  -p   | pws                  fzf open PW overview and return in console.
+  -u   | update               Update OTP / PW cache.
+  -h   | --help               Show this help message.
+EOF
+}
+
+[[ $@ ]] || { helptext; exit 1; }
+
+ARG=()
+while [[ $# -gt 0 ]]; do
+  option="$1"
+  case $option in
+    otp|-o)
+      MODE="otp"
+      shift
+      ;;
+    pws|-p)
+      MODE="pws"
+      shift
+      ;;
+    update|-u)
+      MODE="update"
+      shift
+      ;;
+    --help|-h)
+      helptext
+      exit
+      ;;
+    *)
+      ARG+=("$1")
+      shift
+      ;;
+  esac
+done
+
+
+if [[ "$MODE" == "otp" ]]; then
+  otp() {
+    [[ $1 == "update" ]] && nitrocache otp
+
+    cache_dir="$HOME/.cache/nitrocli/"
+    otpname="$(cat $cache_dir/otp \
+      | tail -n +2 \
+      | awk '{print $2 "  - " $3}' \
+      | fzf)" 
+
+    otpslot="$(echo "$otpname" | awk '{print $1}')"
+
+    [ -n "$otpname" ] \
+      && nitrocli otp get "$otpslot" \
+      | xclip -selection clip
+    }
+
+  eval "otp"
+
+elif [[ "$MODE" == "pws" ]]; then
+  pws() {
+    [[ $1 == "update" ]] && nitrocache pws
+
+    cache_dir="$HOME/.cache/nitrocli/"
+    pwname="$(cat $cache_dir/pws \
+      | tail -n +2 \
+      | fzf)" 
+
+    pwslot="$(echo "$pwname" | awk '{print $1}')"
+
+    [ -n "$pwname" ] \
+      && nitrocli pws get "$pwslot"
+    }
+
+  eval "pws"
+
+elif [[ "$MODE" == "update" ]]; then
+  nitrocache() {
+    cache_dir="$HOME/.cache/nitrocli/"
+    [[ ! -d $cache_dir  ]] && mkdir -p $cache_dir && echo "$cache_dir created."
+    data="$(nitrocli $1 status)"
+    echo "$data" > "$cache_dir/$1"
+    echo "$1 cache updated."
+  }
+
+eval "nitrocache otp"
+eval "nitrocache pws"
+
+fi
