@@ -46,7 +46,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 scdkill() {
-  gpg-connect-agent 'SCD KILLSCD' /bye
+  gpg-connect-agent 'SCD KILLSCD' /bye 2>&1>/dev/null
 }
 
 
