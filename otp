@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cache_dir="$HOME/.cache/fzf-nitro/"
+otpname="$(cat $cache_dir/otp \
+  | tail -n +2 \
+  | awk '{print $2 "  - " $3}' \
+  | dmenu -l 30)" 
+
+otpslot="$(echo "$otpname" | awk '{print $1}')"
+
+[ -n "$otpname" ] \
+  && nitrocli otp get "$otpslot" \
+  | xclip -selection clip
